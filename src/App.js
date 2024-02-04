@@ -1,27 +1,45 @@
+// App.js
 import { useRef, useState } from 'react';
 import './App.css';
 import AddTask from './Components/AddTask';
 import TaskList from './Components/TaskList';
 
 function App() {
+  const addTaskRef = useRef();
+  const [text, setText] = useState('ADD TASK');
+  const [updateTaskId, setUpdateTaskId] = useState(null);
+  // const [isCancelClicked, setIsCancelClicked] = useState(false);
+  const [updateDone, setUpdateDone] = useState(false);
 
-  const addTaskRef = useRef()
-  const [text,setText] = useState('ADD TASK')
-  const [updateTaskId,setUpdateTaskId] = useState(null)
-
-  const focusInputfield = (taskId) => {
-    if(addTaskRef.current){
-      addTaskRef.current.focus()
-      setText('UPDATE TASK')
-      // console.log("In app compo",taskId);
-      setUpdateTaskId(taskId)
-      console.log("isnt'it");
+  const onUpdateClick = (taskId) => {
+    if (addTaskRef.current) {
+      addTaskRef.current.focus();
+      setText('UPDATE TASK');
+      setUpdateTaskId(taskId);
+      // setIsCancelClicked(false);
     }
-  }
+  };
+
+  const onCancelUpdateClick = () => {
+    setText('ADD TASK');
+    // setIsCancelClicked(true);
+  };
+
   return (
     <>
-      <AddTask ref={addTaskRef} text={text} setText={setText} updateTaskId={updateTaskId} onUpdateClick={focusInputfield}/>
-      <TaskList onUpdateClick={focusInputfield}/>
+      <AddTask
+        ref={addTaskRef}
+        text={text}
+        setText={setText}
+        updatedTaskId={updateTaskId}
+        // isCancelClicked={isCancelClicked}
+        setUpdateDone={setUpdateDone}
+      />
+      <TaskList
+        onUpdateClick={onUpdateClick}
+        onCancelUpdateClick={onCancelUpdateClick}
+        updateDone={updateDone}
+      />
     </>
   );
 }

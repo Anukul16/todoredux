@@ -1,30 +1,67 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeTask } from '../Features/Todos/todoSlice';
 import EditNoteTwoToneIcon from '@mui/icons-material/EditNoteTwoTone';
 import DeleteRoundedIcon from '@mui/icons-material/DeleteRounded';
+import Checkbox from '@mui/material/Checkbox';
+import CloseSharpIcon from '@mui/icons-material/CloseSharp';
 
-const TaskList = ({ onUpdateClick }) => {
+const TaskList = ({ onUpdateClick, onCancelUpdateClick, updateDone }) => {
   const tasks = useSelector((state) => state.todo.tasks);
   const dispatch = useDispatch();
+
+  const [updateClickedStates, setUpdateClickedStates] = useState(tasks.map(() => false));
+  const [updatingTaskId, setUpdatingTaskId] = useState(null);
+
+  useEffect(() => {
+    // Reset updateClickedStates when updateDone changes
+    if (updateDone) {
+      setUpdateClickedStates(tasks.map(() => false));
+      setUpdatingTaskId(null);
+    }
+  }, [updateDone, tasks]);
 
   const handleDelete = (taskId) => {
     dispatch(removeTask(taskId));
   };
 
-  const handleUpdate = (taskId) => {
-    console.log("Update Button clicked..", taskId);
-    onUpdateClick(taskId);
+  const handleUpdate = (taskId, taskIndex) => {
+    if (updatingTaskId) {
+      alert('Plz cancel or update the task :)');
+    } else {
+      setUpdateClickedStates((prevStates) => {
+        const newStates = [...prevStates];
+        newStates[taskIndex] = true;
+
+        return newStates;
+      });
+      setUpdatingTaskId(true);
+      onUpdateClick(taskId);
+    }
+  };
+
+  const cancelUpdate = (taskId, taskIndex) => {
+    setUpdateClickedStates((prevStates) => {
+      const newStates = [...prevStates];
+      newStates[taskIndex] = false;
+      return newStates;
+    });
+    setUpdatingTaskId(null);
+    onCancelUpdateClick(taskId);
   };
 
   return (
     <ul style={styles.taskList}>
-      {tasks.map((task) => (
+      {tasks.map((task, index) => (
         <li key={task.id} style={styles.taskItem}>
+          <Checkbox style={styles.checkbox} />
           <span style={styles.taskText}>{task.text}</span>
-          <EditNoteTwoToneIcon onClick={() => handleUpdate(task.id)} style={styles.updateButton}/>
-
-          <DeleteRoundedIcon onClick={() => handleDelete(task.id)} style={styles.deleteButton}/>
+          {updateClickedStates[index] ? (
+            <CloseSharpIcon onClick={() => cancelUpdate(task.id, index)} style={styles.updateButton} />
+          ) : (
+            <EditNoteTwoToneIcon onClick={() => handleUpdate(task.id, index)} style={styles.updateButton} />
+          )}
+          <DeleteRoundedIcon onClick={() => handleDelete(task.id)} style={styles.deleteButton} />
         </li>
       ))}
     </ul>
@@ -53,10 +90,18 @@ const styles = {
     background: '#3498db',
     boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
     color: 'white',
+    position: 'relative',
+    transition: 'background-color 0.3s ease',
+  },
+  taskItemHover: {
+    background: '#2980b9',
   },
   taskText: {
     flex: 1,
     fontSize: 16,
+    marginRight: 10,
+  },
+  checkbox: {
     marginRight: 10,
   },
   updateButton: {
@@ -68,9 +113,13 @@ const styles = {
     cursor: 'pointer',
     padding: '8px 12px',
     marginLeft: '10px',
+    transition: 'color 0.3s ease',
+  },
+  updateButtonHover: {
+    color: '#e74c3c',
   },
   deleteButton: {
-    fontSize: 24, 
+    fontSize: 24,
     backgroundColor: '#e74c3c',
     color: 'white',
     border: 'none',
@@ -78,7 +127,11 @@ const styles = {
     cursor: 'pointer',
     padding: '8px 12px',
     marginLeft: '10px',
+    transition: 'background-color 0.3s ease',
+  },
+  deleteButtonHover: {
+    background: '#c0392b',
   },
 };
 
-export default TaskList
+export default TaskList;

@@ -1,20 +1,22 @@
+
 import React, { useState, forwardRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { addTask, updateTask } from '../Features/Todos/todoSlice';
 
-const AddTask = (props, ref) => {
+const AddTask = ({ text, setText, updatedTaskId, setUpdateDone }, ref) => {
   const [task, setTask] = useState('');
   const dispatch = useDispatch();
 
   const handleAddTask = (e) => {
     e.preventDefault();
-    if(task===''){
-      alert("Please enter some task")
+    if (task === '') {
+      alert('Please enter some task');
       return;
     }
-    if (props.text === 'UPDATE TASK') {
-      dispatch(updateTask({ id: props.updateTaskId, text: task }));
-      props.setText('ADD TASK');
+    if (text === 'UPDATE TASK') {
+      dispatch(updateTask({ id: updatedTaskId, text: task }));
+      setText('ADD TASK');
+      setUpdateDone(true);
     } else {
       dispatch(addTask(task));
     }
@@ -34,7 +36,7 @@ const AddTask = (props, ref) => {
           ref={ref}
         />
         <button onClick={handleAddTask} style={styles.button}>
-          {props.text}
+          {text}
         </button>
       </div>
     </div>
